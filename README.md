@@ -49,6 +49,8 @@ If you are a module developer, you need to use the FINALIZE module in your code.
 AS A PROGRAM DEVELOPER
 ======================
 
+Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits.
+
 AUTHOR
 ======
 

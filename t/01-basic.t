@@ -23,11 +23,12 @@ LEAVE @order.push: "leaving program";
     }
 }
 
-is-deeply @order, [
+END is-deeply @order, [
   "leaving frobnicate",
   "doing stuff with frobnicate",
   "leaving registered with frobnicate",
   "leaving outer",
+  "leaving program",
 ], 'Did all of the things happen in the correct order';
 
 # vim: ft=perl6 expandtab sw=4

@@ -1,6 +1,6 @@
 use v6.c;
 
-class FINALIZER:ver<0.0.1>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.2>:auth<cpan:ELIZABETH> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
 
@@ -84,7 +84,10 @@ looks something like:
 
 =head1 AS A PROGRAM DEVELOPER
 
-
+Just use the module in the scope you want to have objects finalized for
+when that scope is left.  If you don't use the module at all, all objects
+that have been registered for finalization, will be finalized when the
+program exits.
 
 =head1 AUTHOR
 
