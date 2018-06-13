@@ -2,6 +2,7 @@ Revision history for FINALIZER
 
 {{$NEXT}}
     - Some more documentation added / clarified
+    - Add section "Relation to DESTROY method"
 
 0.0.2  2018-06-13T23:10:15+02:00
     - Add missing documentation as a program developer.

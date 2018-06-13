@@ -91,6 +91,27 @@ that have been registered for finalization, will be finalized when the
 program exits.  If you want to have finalization happen for some scope,
 just add C<use FINALIZER> in that scope.
 
+=head1 RELATION TO DESTROY METHOD
+
+This module has B<no> direct connection with the C<.DESTROY> method
+functionality in Perl 6.  However, if you, as a module developer, use
+this module, you do not need to supply a C<DESTROY> method as well, as
+the finalization will have been done by the C<FINALIZER> module.  And as
+the finalizer code that you have registered, will keep the object otherwise
+alive until the program exits.
+
+It therefore makes sense to reset the variable in the code doing the
+finalization.  For instance, in the above class Foo:
+
+        method finalize(\SELF: --> Nil) {
+            # do stuff with SELF
+            SELF = Nil
+        }
+
+The C<\SELF:> is a way to get the invocant without it being decontainerized.
+This allows resetting the variable containing the object (by assigning C<Nil>
+to it).
+
 =head1 AUTHOR
 
 Elizabeth Mattijsen <liz@wenzperl.nl>
