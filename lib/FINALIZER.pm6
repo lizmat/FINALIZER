@@ -1,6 +1,6 @@
 use v6.c;
 
-class FINALIZER:ver<0.0.2>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.3>:auth<cpan:ELIZABETH> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
 
@@ -48,8 +48,8 @@ FINALIZER - dynamic finalizing for objects that need finalizing
     # $foo has been finalized by exiting the above scope
 
     # different file / module
+    use FINALIZER;
     class Foo {
-        use FINALIZER;
         method new(|c) {
             my $object = self.bless(|c);
             FINALIZER.register: { $object.finalize }
@@ -74,20 +74,22 @@ you want finalized at the moment the client decides, you register a code
 block to be executed when the object should be finalized.  Typically that
 looks something like:
 
-    method new(|c) {
-        my $object = self.bless(|c);
-        FINALIZER.register: { $object.finalize }
-        $object
+    use FINALIZER;
+    class Foo {
+        method new(|c) {
+            my $object = self.bless(|c);
+            FINALIZER.register: { $object.finalize }
+            $object
+        }
     }
-
-    FINALIZER.register: { ... }   # code that will do finalization
 
 =head1 AS A PROGRAM DEVELOPER
 
 Just use the module in the scope you want to have objects finalized for
 when that scope is left.  If you don't use the module at all, all objects
 that have been registered for finalization, will be finalized when the
-program exits.
+program exits.  If you want to have finalization happen for some scope,
+just add C<use FINALIZER> in that scope.
 
 =head1 AUTHOR
 

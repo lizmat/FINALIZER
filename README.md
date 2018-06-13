@@ -16,8 +16,8 @@ SYNOPSIS
     # $foo has been finalized by exiting the above scope
 
     # different file / module
+    use FINALIZER;
     class Foo {
-        use FINALIZER;
         method new(|c) {
             my $object = self.bless(|c);
             FINALIZER.register: { $object.finalize }
@@ -38,18 +38,19 @@ AS A MODULE DEVELOPER
 
 If you are a module developer, you need to use the FINALIZE module in your code. In any logic that returns an object (typically the `new` method) that you want finalized at the moment the client decides, you register a code block to be executed when the object should be finalized. Typically that looks something like:
 
-    method new(|c) {
-        my $object = self.bless(|c);
-        FINALIZER.register: { $object.finalize }
-        $object
+    use FINALIZER;
+    class Foo {
+        method new(|c) {
+            my $object = self.bless(|c);
+            FINALIZER.register: { $object.finalize }
+            $object
+        }
     }
-
-    FINALIZER.register: { ... }   # code that will do finalization
 
 AS A PROGRAM DEVELOPER
 ======================
 
-Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits.
+Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits. If you want to have finalization happen for some scope, just add `use FINALIZER` in that scope.
 
 AUTHOR
 ======
