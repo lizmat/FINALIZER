@@ -5,7 +5,7 @@
   ],
   "build-depends" : [ ],
   "depends" : [ ],
-  "description" : "blah blah blah",
+  "description" : "dynamic finalizing for objects that need finalizing",
   "license" : "Artistic-2.0",
   "name" : "FINALIZER",
   "perl" : "6.c",
@@ -13,8 +13,10 @@
     "FINALIZER" : "lib/FINALIZER.pm6"
   },
   "resources" : [ ],
-  "source-url" : "",
-  "tags" : [ UTILS ],
+  "source-url" : "https://github.com/lizmat/FINALIZER.git",
+  "tags" : [
+    "UTILS"
+  ],
   "test-depends" : [ ],
   "version" : "0.0.1"
 }
