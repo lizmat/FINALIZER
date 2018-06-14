@@ -31,7 +31,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-FINALIZER allows one to register finalization of objects in the scope that you want, rather than in the scope where objects where created (like one would otherwise do with `LEAVE` blocks or the `is leave` trait).
+FINALIZER allows one to register finalization of objects in the scope that you want, rather than in the scope where objects were created (like one would otherwise do with `LEAVE` blocks or the `is leave` trait).
 
 AS A MODULE DEVELOPER
 =====================

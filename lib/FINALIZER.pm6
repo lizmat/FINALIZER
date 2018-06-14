@@ -63,7 +63,7 @@ FINALIZER - dynamic finalizing for objects that need finalizing
 =head1 DESCRIPTION
 
 FINALIZER allows one to register finalization of objects in the scope that
-you want, rather than in the scope where objects where created (like one
+you want, rather than in the scope where objects were created (like one
 would otherwise do with C<LEAVE>  blocks or the C<is leave> trait).
 
 =head1 AS A MODULE DEVELOPER
