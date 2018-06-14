@@ -1,6 +1,8 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+
+0.0.5  2018-06-14T17:52:13+02:00
     - Make sure that making changes to blocks is threadsafe
     - Finalizer can now always call method, so no need for .?
 
