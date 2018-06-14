@@ -1,6 +1,6 @@
 use v6.c;
 use Test;
-use FINALIZER;
+use FINALIZER <class-only>;
 
 plan 1;
 
