@@ -49,7 +49,7 @@ multi sub EXPORT() {
 
     # The magic incantation to export a LEAVE phaser to the scope where
     # the -use- statement is placed, Zoffix++ for producing this hack!
-    $*W.add_phaser: $*LANG, 'LEAVE', { $*FINALIZER.?FINALIZE }
+    $*W.add_phaser: $*LANG, 'LEAVE', { $*FINALIZER.FINALIZE }
 
     # Make sure we export a dynamic variable as well, to serve as the
     # check point for the finalizations that need to happen in this scope.
