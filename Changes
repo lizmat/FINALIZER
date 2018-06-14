@@ -1,6 +1,7 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+    - Make sure that making changes to blocks is threadsafe
 
 0.0.4  2018-06-14T16:30:21+02:00
     - Reworked some internals

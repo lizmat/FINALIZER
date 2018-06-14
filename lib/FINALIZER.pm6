@@ -1,37 +1,46 @@
 use v6.c;
 
-class FINALIZER:ver<0.0.4>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.5>:auth<cpan:ELIZABETH> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
+    has $!lock;
+
+    # Make sure we have a lock for adding / removing from blocks
+    submethod TWEAK() { $!lock = Lock.new }
 
     # The actual method calling the registered blocks for this finalizer
-    method FINALIZE() {
-        my @exceptions;
-        for @!blocks -> &code {
-            code();
-            CATCH { default { @exceptions.push($_) } }
+    method FINALIZE(FINALIZER:D:) {
+        $!lock.protect: {
+            my @exceptions;
+            for @!blocks -> &code {
+                code();
+                CATCH { default { @exceptions.push($_) } }
+            }
+            dd @exceptions if @exceptions;
         }
-        dd @exceptions if @exceptions;
     }
+
+    # Run code with a lock protecting changes to blocks
+    method !protect(FINALIZER:D: &code) { $!lock.protect: &code }
 
     # Register a block for finalizing if there is a dynamic variable with
     # a FINALIZER object in it.
-    method register(&a --> Callable:D) {
+    method register(FINALIZER:U: &code --> Callable:D) {
         with $*FINALIZER -> $finalizer {
-            $finalizer.blocks.push(&a);
-            -> { self!unregister(&a.WHICH) }
+            $finalizer!protect: { $finalizer.blocks.push(&code) }
+            -> { $finalizer!unregister(&code) }
         }
         else {
             -> --> Nil { }
         }
     }
-    method !unregister($WHICH --> Nil) {
-        with $*FINALIZER -> $finalizer {
-            if $finalizer.blocks -> @blocks {
-                @blocks.splice($_,1)
-                  with @blocks.first( $WHICH eq *.WHICH, :k );
-            }
-        }
+
+    # Unregister a finalizing block: done as a private object method to
+    # make access to blocks easier.  Assumes we're already in protected
+    # mode wrt making changes to blocks.
+    method !unregister(FINALIZER:D: &code --> Nil) {
+        my $WHICH := &code.WHICH;
+        @!blocks.splice($_,1) with @!blocks.first( $WHICH eq *.WHICH, :k );
     }
 }
 
