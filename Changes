@@ -1,6 +1,11 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+    - Reworked some internals
+    - FINALIZER.register now returns a code block for unregistering
+    - No longer installs a PROCESS::<$*FINALIZER), as per jnthn's suggestion
+    - Now always installs an instantiated FINALIZER in $*FINALIZER
+    - Modules should now use 'use FINALIZER <class-only>'
 
 0.0.3  2018-06-14T00:19:30+02:00
     - Some more documentation added / clarified

@@ -1,25 +1,42 @@
 use v6.c;
 
-class FINALIZER:ver<0.0.3>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.4>:auth<cpan:ELIZABETH> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
 
-    # Make sure we always have a outermost finalizer
-    INIT PROCESS::<$FINALIZER> = FINALIZER.new;
-
-    # Make sure the outermost finalizer will always run
-    END  PROCESS::<$FINALIZER>.FINALIZE;
-
     # The actual method calling the registered blocks for this finalizer
-    method FINALIZE()   { .() for @!blocks }
+    method FINALIZE() {
+        my @exceptions;
+        for @!blocks -> &code {
+            code();
+            CATCH { default { @exceptions.push($_) } }
+        }
+        dd @exceptions if @exceptions;
+    }
 
-    # Register a block for finalizing.  Make sure the currently active
-    # dynamic variable actually has a FINALIZER object in it if it didn't
-    # already
-    method register(&a) { ($*FINALIZER //= FINALIZER.new).blocks.push(&a) }
+    # Register a block for finalizing if there is a dynamic variable with
+    # a FINALIZER object in it.
+    method register(&a --> Callable:D) {
+        with $*FINALIZER -> $finalizer {
+            $finalizer.blocks.push(&a);
+            -> { self!unregister(&a.WHICH) }
+        }
+        else {
+            -> --> Nil { }
+        }
+    }
+    method !unregister($WHICH --> Nil) {
+        with $*FINALIZER -> $finalizer {
+            if $finalizer.blocks -> @blocks {
+                @blocks.splice($_,1)
+                  with @blocks.first( $WHICH eq *.WHICH, :k );
+            }
+        }
+    }
 }
 
-sub EXPORT() {
+# Exporting for a client environment
+multi sub EXPORT() {
 
     # The magic incantation to export a LEAVE phaser to the scope where
     # the -use- statement is placed, Zoffix++ for producing this hack!
@@ -28,9 +45,12 @@ sub EXPORT() {
     # Make sure we export a dynamic variable as well, to serve as the
     # check point for the finalizations that need to happen in this scope.
     my %export;
-    %export.BIND-KEY('$*FINALIZER',my $*FINALIZER);
+    %export.BIND-KEY('$*FINALIZER',my $*FINALIZER = FINALIZER.new);
     %export
 }
+
+# Exporting for a module environment
+multi sub EXPORT('class-only') { {} }
 
 =begin pod
 
@@ -48,14 +68,15 @@ FINALIZER - dynamic finalizing for objects that need finalizing
     # $foo has been finalized by exiting the above scope
 
     # different file / module
-    use FINALIZER;
+    use FINALIZER <class-only>;   # only get the FINALIZER class
     class Foo {
-        method new(|c) {
-            my $object = self.bless(|c);
-            FINALIZER.register: { $object.finalize }
-            $object
+        has &!unregister;
+
+        submethod TWEAK() {
+            &!unregister = FINALIZER.register: { .finalize with self }
         }
         method finalize() {
+            &!unregister();  # make sure there's no registration anymore
             # do whatever we need to finalize, e.g. close db connection
         }
     }
@@ -74,12 +95,16 @@ you want finalized at the moment the client decides, you register a code
 block to be executed when the object should be finalized.  Typically that
 looks something like:
 
-    use FINALIZER;
+    use FINALIZER <class-only>;  # only get the FINALIZER class
     class Foo {
-        method new(|c) {
-            my $object = self.bless(|c);
-            FINALIZER.register: { $object.finalize }
-            $object
+        has &!unregister;
+
+        submethod TWEAK() {
+            &!unregister = FINALIZER.register: { .finalize with self }
+        }
+        method finalize() {
+            &!unregister();  # make sure there's no registration anymore
+            # do whatever we need to finalize, e.g. close db connection
         }
     }
 
@@ -89,7 +114,15 @@ Just use the module in the scope you want to have objects finalized for
 when that scope is left.  If you don't use the module at all, all objects
 that have been registered for finalization, will be finalized when the
 program exits.  If you want to have finalization happen for some scope,
-just add C<use FINALIZER> in that scope.
+just add C<use FINALIZER> in that scope.  This could e.g. be used inside
+C<start> blocks, to make sure all registered resources of a job run in
+another thread, are finalized:
+
+    await start {
+        use FINALIZE;
+        # open database handles, shared memory, whatever
+        my $foo = Foo.new(...);
+    }   # all finalized after the job is finished
 
 =head1 RELATION TO DESTROY METHOD
 

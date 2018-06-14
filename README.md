@@ -16,14 +16,15 @@ SYNOPSIS
     # $foo has been finalized by exiting the above scope
 
     # different file / module
-    use FINALIZER;
+    use FINALIZER <class-only>;   # only get the FINALIZER class
     class Foo {
-        method new(|c) {
-            my $object = self.bless(|c);
-            FINALIZER.register: { $object.finalize }
-            $object
+        has &!unregister;
+
+        submethod TWEAK() {
+            &!unregister = FINALIZER.register: { .finalize with self }
         }
         method finalize() {
+            &!unregister();  # make sure there's no registration anymore
             # do whatever we need to finalize, e.g. close db connection
         }
     }
@@ -38,19 +39,29 @@ AS A MODULE DEVELOPER
 
 If you are a module developer, you need to use the FINALIZE module in your code. In any logic that returns an object (typically the `new` method) that you want finalized at the moment the client decides, you register a code block to be executed when the object should be finalized. Typically that looks something like:
 
-    use FINALIZER;
+    use FINALIZER <class-only>;  # only get the FINALIZER class
     class Foo {
-        method new(|c) {
-            my $object = self.bless(|c);
-            FINALIZER.register: { $object.finalize }
-            $object
+        has &!unregister;
+
+        submethod TWEAK() {
+            &!unregister = FINALIZER.register: { .finalize with self }
+        }
+        method finalize() {
+            &!unregister();  # make sure there's no registration anymore
+            # do whatever we need to finalize, e.g. close db connection
         }
     }
 
 AS A PROGRAM DEVELOPER
 ======================
 
-Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits. If you want to have finalization happen for some scope, just add `use FINALIZER` in that scope.
+Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits. If you want to have finalization happen for some scope, just add `use FINALIZER` in that scope. This could e.g. be used inside `start` blocks, to make sure all registered resources of a job run in another thread, are finalized:
+
+    await start {
+        use FINALIZE;
+        # open database handles, shared memory, whatever
+        my $foo = Foo.new(...);
+    }   # all finalized after the job is finished
 
 RELATION TO DESTROY METHOD
 ==========================
