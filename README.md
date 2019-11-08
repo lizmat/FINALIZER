@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/lizmat/FINALIZER.svg?branch=master)](https://travis-ci.org/lizmat/FINALIZER)
-
 NAME
 ====
 
@@ -66,7 +64,7 @@ Just use the module in the scope you want to have objects finalized for when tha
 RELATION TO DESTROY METHOD
 ==========================
 
-This module has **no** direct connection with the `.DESTROY` method functionality in Perl 6. However, if you, as a module developer, use this module, you do not need to supply a `DESTROY` method as well, as the finalization will have been done by the `FINALIZER` module. And as the finalizer code that you have registered, will keep the object otherwise alive until the program exits.
+This module has **no** direct connection with the `.DESTROY` method functionality in Raku. However, if you, as a module developer, use this module, you do not need to supply a `DESTROY` method as well, as the finalization will have been done by the `FINALIZER` module. And as the finalizer code that you have registered, will keep the object otherwise alive until the program exits.
 
 It therefore makes sense to reset the variable in the code doing the finalization. For instance, in the above class Foo:
 
@@ -87,7 +85,7 @@ Source can be located at: https://github.com/lizmat/FINALIZER . Comments and Pul
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2018 Elizabeth Mattijsen
+Copyright 2018-2019 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

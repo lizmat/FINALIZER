@@ -1,6 +1,6 @@
 use v6.c;
 
-class FINALIZER:ver<0.0.5>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.6>:auth<cpan:ELIZABETH> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
     has $!lock;
@@ -136,7 +136,7 @@ another thread, are finalized:
 =head1 RELATION TO DESTROY METHOD
 
 This module has B<no> direct connection with the C<.DESTROY> method
-functionality in Perl 6.  However, if you, as a module developer, use
+functionality in Raku.  However, if you, as a module developer, use
 this module, you do not need to supply a C<DESTROY> method as well, as
 the finalization will have been done by the C<FINALIZER> module.  And as
 the finalizer code that you have registered, will keep the object otherwise
@@ -163,7 +163,7 @@ Pull Requests are welcome.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018 Elizabeth Mattijsen
+Copyright 2018-2019 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
