@@ -3,7 +3,7 @@ Revision history for FINALIZER
 {{$NEXT}}
 
 0.0.6  2019-11-08T23:13:26+01:00
-    - change reference of Perl 6 to Raku
+    - Changed Perl 6 to Raku
 
 0.0.5  2018-06-14T17:52:13+02:00
     - Make sure that making changes to blocks is threadsafe

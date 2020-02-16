@@ -128,7 +128,7 @@ C<start> blocks, to make sure all registered resources of a job run in
 another thread, are finalized:
 
     await start {
-        use FINALIZE;
+        use FINALIZER;
         # open database handles, shared memory, whatever
         my $foo = Foo.new(...);
     }   # all finalized after the job is finished
