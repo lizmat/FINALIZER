@@ -12,7 +12,7 @@ class FINALIZER:ver<0.0.6>:auth<cpan:ELIZABETH> {
     method FINALIZE(FINALIZER:D:) {
         $!lock.protect: {
             my @exceptions;
-            for @!blocks -> &code {
+            for @!blocks.Array -> &code {
                 code();
                 CATCH { default { @exceptions.push($_) } }
             }
@@ -61,6 +61,16 @@ multi sub EXPORT() {
 # Exporting for a module environment
 multi sub EXPORT('class-only') { {} }
 
+role Finalizable {
+    has &!finalizer = FINALIZER.register: { self.finalize() }
+    method FINALIZE { }
+    method finalize(\SELF:) { &!finalizer(); self.FINALIZE(); }
+}
+
+multi sub EXPORT('role-only') {
+    %('Finalizable' => Finalizable)
+}
+
 =begin pod
 
 =head1 NAME
@@ -77,15 +87,9 @@ FINALIZER - dynamic finalizing for objects that need finalizing
     # $foo has been finalized by exiting the above scope
 
     # different file / module
-    use FINALIZER <class-only>;   # only get the FINALIZER class
-    class Foo {
-        has &!unregister;
-
-        submethod TWEAK() {
-            &!unregister = FINALIZER.register: { .finalize with self }
-        }
-        method finalize() {
-            &!unregister();  # make sure there's no registration anymore
+    use FINALIZER <role-only>;   # only get the FINALIZER role
+    class Foo is Finalizable {
+        method FINALIZE {
             # do whatever we need to finalize, e.g. close db connection
         }
     }
@@ -98,7 +102,18 @@ would otherwise do with C<LEAVE>  blocks or the C<is leave> trait).
 
 =head1 AS A MODULE DEVELOPER
 
-If you are a module developer, you need to use the FINALIZE module in your
+If you are a module developer, you need to use the Finalizable role in your
+code.  Created objects C<Finalizable> role may implement C<FINALIZE> method
+to perform cleanup tasks after scope is completed.
+
+    use FINALIZER <role-only>;   # only get the Finalizable role
+    class Foo is Finalizable {
+        method FINALIZE {
+            # do whatever we need to finalize, e.g. close db connection
+        }
+    }
+
+It is also possible to use FINALIZER class from FINALIZE module in your
 code.  In any logic that returns an object (typically the C<new> method) that
 you want finalized at the moment the client decides, you register a code
 block to be executed when the object should be finalized.  Typically that
