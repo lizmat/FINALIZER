@@ -103,8 +103,8 @@ would otherwise do with C<LEAVE>  blocks or the C<is leave> trait).
 =head1 AS A MODULE DEVELOPER
 
 If you are a module developer, you need to use the Finalizable role in your
-code.  Created objects C<Finalizable> role may implement C<FINALIZE> method
-to perform cleanup tasks after scope is completed.
+code.  Created objects with C<Finalizable> role applied may implement C<FINALIZE>
+method to perform cleanup tasks after scope is completed.
 
     use FINALIZER <role-only>;   # only get the Finalizable role
     class Foo is Finalizable {
