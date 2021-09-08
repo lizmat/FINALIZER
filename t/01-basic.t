@@ -31,4 +31,4 @@ END is-deeply @order, [
   "leaving program",
 ], 'Did all of the things happen in the correct order';
 
-# vim: ft=perl6 expandtab sw=4
+# vim: expandtab shiftwwidth=4

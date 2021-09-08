@@ -2,6 +2,11 @@ Revision history for FINALIZER
 
 {{$NEXT}}
 
+0.0.7  2021-09-08T20:41:45+02:00
+    - Change file extension to .rakumod
+    - Migrate to zef ecosystem
+    - Update email address
+
 0.0.6  2019-11-08T23:13:26+01:00
     - Changed Perl 6 to Raku
 

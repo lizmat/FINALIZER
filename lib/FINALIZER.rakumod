@@ -1,6 +1,6 @@
-use v6.c;
+use v6.d;
 
-class FINALIZER:ver<0.0.6>:auth<cpan:ELIZABETH> {
+class FINALIZER:ver<0.0.7>:auth<zef:lizmat> {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
     has $!lock;
@@ -156,15 +156,17 @@ to it).
 
 =head1 AUTHOR
 
-Elizabeth Mattijsen <liz@wenzperl.nl>
+Elizabeth Mattijsen <liz@raku.rocks>
 
 Source can be located at: https://github.com/lizmat/FINALIZER . Comments and
 Pull Requests are welcome.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018-2019 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
 =end pod
+
+# vim: expandtab shiftwidth=4

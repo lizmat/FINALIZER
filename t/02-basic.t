@@ -27,4 +27,4 @@ ok $finalized, 'did we finalize when leaving scope';
     is +$*FINALIZER.blocks, 0, 'is the finalizer block gone';
 }
 
-# vim: ft=perl6 expandtab sw=4
+# vim: expandtab shiftwidth=4

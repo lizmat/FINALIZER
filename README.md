@@ -1,3 +1,5 @@
+[![Actions Status](https://github.com/lizmat/FINALIZER/workflows/test/badge.svg)](https://github.com/lizmat/FINALIZER/actions)
+
 NAME
 ====
 
@@ -56,7 +58,7 @@ AS A PROGRAM DEVELOPER
 Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits. If you want to have finalization happen for some scope, just add `use FINALIZER` in that scope. This could e.g. be used inside `start` blocks, to make sure all registered resources of a job run in another thread, are finalized:
 
     await start {
-        use FINALIZE;
+        use FINALIZER;
         # open database handles, shared memory, whatever
         my $foo = Foo.new(...);
     }   # all finalized after the job is finished
@@ -78,14 +80,14 @@ The `\SELF:` is a way to get the invocant without it being decontainerized. This
 AUTHOR
 ======
 
-Elizabeth Mattijsen <liz@wenzperl.nl>
+Elizabeth Mattijsen <liz@raku.rocks>
 
 Source can be located at: https://github.com/lizmat/FINALIZER . Comments and Pull Requests are welcome.
 
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2018-2019 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
