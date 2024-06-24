@@ -1,6 +1,6 @@
 use v6.d;
 
-class FINALIZER:ver<0.0.7>:auth<zef:lizmat> {
+class FINALIZER {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
     has $!lock;
@@ -69,26 +69,30 @@ FINALIZER - dynamic finalizing for objects that need finalizing
 
 =head1 SYNOPSIS
 
-    {
-        use FINALIZER;   # enable finalizing for this scope
-        my $foo = Foo.new(...);
-        # do stuff with $foo
-    }
-    # $foo has been finalized by exiting the above scope
+=begin code :lang<raku>
 
-    # different file / module
-    use FINALIZER <class-only>;   # only get the FINALIZER class
-    class Foo {
-        has &!unregister;
+{
+    use FINALIZER;   # enable finalizing for this scope
+    my $foo = Foo.new(...);
+    # do stuff with $foo
+}
+# $foo has been finalized by exiting the above scope
 
-        submethod TWEAK() {
-            &!unregister = FINALIZER.register: { .finalize with self }
-        }
-        method finalize() {
-            &!unregister();  # make sure there's no registration anymore
-            # do whatever we need to finalize, e.g. close db connection
-        }
+# different file / module
+use FINALIZER <class-only>;   # only get the FINALIZER class
+class Foo {
+    has &!unregister;
+
+    submethod TWEAK() {
+        &!unregister = FINALIZER.register: { .finalize with self }
     }
+    method finalize() {
+        &!unregister();  # make sure there's no registration anymore
+        # do whatever we need to finalize, e.g. close db connection
+    }
+}
+
+=end code
 
 =head1 DESCRIPTION
 
@@ -104,18 +108,22 @@ you want finalized at the moment the client decides, you register a code
 block to be executed when the object should be finalized.  Typically that
 looks something like:
 
-    use FINALIZER <class-only>;  # only get the FINALIZER class
-    class Foo {
-        has &!unregister;
+=begin code :lang<raku>
 
-        submethod TWEAK() {
-            &!unregister = FINALIZER.register: { .finalize with self }
-        }
-        method finalize() {
-            &!unregister();  # make sure there's no registration anymore
-            # do whatever we need to finalize, e.g. close db connection
-        }
+use FINALIZER <class-only>;  # only get the FINALIZER class
+class Foo {
+    has &!unregister;
+
+    submethod TWEAK() {
+        &!unregister = FINALIZER.register: { .finalize with self }
     }
+    method finalize() {
+        &!unregister();  # make sure there's no registration anymore
+        # do whatever we need to finalize, e.g. close db connection
+    }
+}
+
+=end code
 
 =head1 AS A PROGRAM DEVELOPER
 
@@ -127,11 +135,15 @@ just add C<use FINALIZER> in that scope.  This could e.g. be used inside
 C<start> blocks, to make sure all registered resources of a job run in
 another thread, are finalized:
 
-    await start {
-        use FINALIZER;
-        # open database handles, shared memory, whatever
-        my $foo = Foo.new(...);
-    }   # all finalized after the job is finished
+=begin code :lang<raku>
+
+await start {
+    use FINALIZER;
+    # open database handles, shared memory, whatever
+    my $foo = Foo.new(...);
+}   # all finalized after the job is finished
+
+=end code
 
 =head1 RELATION TO DESTROY METHOD
 
@@ -145,10 +157,14 @@ alive until the program exits.
 It therefore makes sense to reset the variable in the code doing the
 finalization.  For instance, in the above class Foo:
 
-        method finalize(\SELF: --> Nil) {
-            # do stuff with SELF
-            SELF = Nil
-        }
+=begin code :lang<raku>
+
+method finalize(\SELF: --> Nil) {
+    # do stuff with SELF
+    SELF = Nil
+}
+
+=end code
 
 The C<\SELF:> is a way to get the invocant without it being decontainerized.
 This allows resetting the variable containing the object (by assigning C<Nil>
@@ -161,9 +177,13 @@ Elizabeth Mattijsen <liz@raku.rocks>
 Source can be located at: https://github.com/lizmat/FINALIZER . Comments and
 Pull Requests are welcome.
 
+If you like this module, or what I’m doing more generally, committing to a
+L<small sponsorship|https://github.com/sponsors/lizmat/>  would mean a great
+deal to me!
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018, 2019, 2021 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021, 2024 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

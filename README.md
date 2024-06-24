@@ -8,26 +8,28 @@ FINALIZER - dynamic finalizing for objects that need finalizing
 SYNOPSIS
 ========
 
-    {
-        use FINALIZER;   # enable finalizing for this scope
-        my $foo = Foo.new(...);
-        # do stuff with $foo
-    }
-    # $foo has been finalized by exiting the above scope
+```raku
+{
+    use FINALIZER;   # enable finalizing for this scope
+    my $foo = Foo.new(...);
+    # do stuff with $foo
+}
+# $foo has been finalized by exiting the above scope
 
-    # different file / module
-    use FINALIZER <class-only>;   # only get the FINALIZER class
-    class Foo {
-        has &!unregister;
+# different file / module
+use FINALIZER <class-only>;   # only get the FINALIZER class
+class Foo {
+    has &!unregister;
 
-        submethod TWEAK() {
-            &!unregister = FINALIZER.register: { .finalize with self }
-        }
-        method finalize() {
-            &!unregister();  # make sure there's no registration anymore
-            # do whatever we need to finalize, e.g. close db connection
-        }
+    submethod TWEAK() {
+        &!unregister = FINALIZER.register: { .finalize with self }
     }
+    method finalize() {
+        &!unregister();  # make sure there's no registration anymore
+        # do whatever we need to finalize, e.g. close db connection
+    }
+}
+```
 
 DESCRIPTION
 ===========
@@ -39,29 +41,33 @@ AS A MODULE DEVELOPER
 
 If you are a module developer, you need to use the FINALIZE module in your code. In any logic that returns an object (typically the `new` method) that you want finalized at the moment the client decides, you register a code block to be executed when the object should be finalized. Typically that looks something like:
 
-    use FINALIZER <class-only>;  # only get the FINALIZER class
-    class Foo {
-        has &!unregister;
+```raku
+use FINALIZER <class-only>;  # only get the FINALIZER class
+class Foo {
+    has &!unregister;
 
-        submethod TWEAK() {
-            &!unregister = FINALIZER.register: { .finalize with self }
-        }
-        method finalize() {
-            &!unregister();  # make sure there's no registration anymore
-            # do whatever we need to finalize, e.g. close db connection
-        }
+    submethod TWEAK() {
+        &!unregister = FINALIZER.register: { .finalize with self }
     }
+    method finalize() {
+        &!unregister();  # make sure there's no registration anymore
+        # do whatever we need to finalize, e.g. close db connection
+    }
+}
+```
 
 AS A PROGRAM DEVELOPER
 ======================
 
 Just use the module in the scope you want to have objects finalized for when that scope is left. If you don't use the module at all, all objects that have been registered for finalization, will be finalized when the program exits. If you want to have finalization happen for some scope, just add `use FINALIZER` in that scope. This could e.g. be used inside `start` blocks, to make sure all registered resources of a job run in another thread, are finalized:
 
-    await start {
-        use FINALIZER;
-        # open database handles, shared memory, whatever
-        my $foo = Foo.new(...);
-    }   # all finalized after the job is finished
+```raku
+await start {
+    use FINALIZER;
+    # open database handles, shared memory, whatever
+    my $foo = Foo.new(...);
+}   # all finalized after the job is finished
+```
 
 RELATION TO DESTROY METHOD
 ==========================
@@ -70,10 +76,12 @@ This module has **no** direct connection with the `.DESTROY` method functionalit
 
 It therefore makes sense to reset the variable in the code doing the finalization. For instance, in the above class Foo:
 
-    method finalize(\SELF: --> Nil) {
-        # do stuff with SELF
-        SELF = Nil
-    }
+```raku
+method finalize(\SELF: --> Nil) {
+    # do stuff with SELF
+    SELF = Nil
+}
+```
 
 The `\SELF:` is a way to get the invocant without it being decontainerized. This allows resetting the variable containing the object (by assigning `Nil` to it).
 
@@ -84,10 +92,12 @@ Elizabeth Mattijsen <liz@raku.rocks>
 
 Source can be located at: https://github.com/lizmat/FINALIZER . Comments and Pull Requests are welcome.
 
+If you like this module, or what I’m doing more generally, committing to a [small sponsorship](https://github.com/sponsors/lizmat/) would mean a great deal to me!
+
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2018, 2019, 2021 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021, 2024 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
