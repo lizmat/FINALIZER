@@ -1,6 +1,11 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+    - Add "Finalizable" role for easier usage as a module
+      developer, accessible with 'use FINALIZER <role-only>
+      Voldenet++
+    - Add CI badge for each OS
+    - Update copyright year
 
 0.0.8  2024-06-24T21:35:40+02:00
     - Modernize test files extension
@@ -22,9 +27,12 @@ Revision history for FINALIZER
 
 0.0.4  2018-06-14T16:30:21+02:00
     - Reworked some internals
-    - FINALIZER.register now returns a code block for unregistering
-    - No longer installs a PROCESS::<$*FINALIZER), as per jnthn's suggestion
-    - Now always installs an instantiated FINALIZER in $*FINALIZER
+    - FINALIZER.register now returns a code block for
+      unregistering
+    - No longer installs a PROCESS::<$*FINALIZER), as per
+      jnthn's suggestion
+    - Now always installs an instantiated FINALIZER in
+      $*FINALIZER
     - Modules should now use 'use FINALIZER <class-only>'
 
 0.0.3  2018-06-14T00:19:30+02:00

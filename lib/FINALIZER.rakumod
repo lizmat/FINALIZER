@@ -1,5 +1,3 @@
-use v6.d;
-
 class FINALIZER {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
@@ -61,132 +59,20 @@ multi sub EXPORT() {
 # Exporting for a module environment
 multi sub EXPORT('class-only') { {} }
 
-=begin pod
+# Role to be used by objects
+role Finalizable {
+    has &!finalizer = FINALIZER.register: { self.finalize() }
 
-=head1 NAME
+    method FINALIZE { }
 
-FINALIZER - dynamic finalizing for objects that need finalizing
-
-=head1 SYNOPSIS
-
-=begin code :lang<raku>
-
-{
-    use FINALIZER;   # enable finalizing for this scope
-    my $foo = Foo.new(...);
-    # do stuff with $foo
-}
-# $foo has been finalized by exiting the above scope
-
-# different file / module
-use FINALIZER <class-only>;   # only get the FINALIZER class
-class Foo {
-    has &!unregister;
-
-    submethod TWEAK() {
-        &!unregister = FINALIZER.register: { .finalize with self }
-    }
-    method finalize() {
-        &!unregister();  # make sure there's no registration anymore
-        # do whatever we need to finalize, e.g. close db connection
+    method finalize(\SELF:) {
+        &!finalizer();
+        SELF.FINALIZE()
     }
 }
 
-=end code
-
-=head1 DESCRIPTION
-
-FINALIZER allows one to register finalization of objects in the scope that
-you want, rather than in the scope where objects were created (like one
-would otherwise do with C<LEAVE>  blocks or the C<is leave> trait).
-
-=head1 AS A MODULE DEVELOPER
-
-If you are a module developer, you need to use the FINALIZE module in your
-code.  In any logic that returns an object (typically the C<new> method) that
-you want finalized at the moment the client decides, you register a code
-block to be executed when the object should be finalized.  Typically that
-looks something like:
-
-=begin code :lang<raku>
-
-use FINALIZER <class-only>;  # only get the FINALIZER class
-class Foo {
-    has &!unregister;
-
-    submethod TWEAK() {
-        &!unregister = FINALIZER.register: { .finalize with self }
-    }
-    method finalize() {
-        &!unregister();  # make sure there's no registration anymore
-        # do whatever we need to finalize, e.g. close db connection
-    }
+multi sub EXPORT('role-only') {
+    BEGIN Map.new('Finalizable' => Finalizable)
 }
-
-=end code
-
-=head1 AS A PROGRAM DEVELOPER
-
-Just use the module in the scope you want to have objects finalized for
-when that scope is left.  If you don't use the module at all, all objects
-that have been registered for finalization, will be finalized when the
-program exits.  If you want to have finalization happen for some scope,
-just add C<use FINALIZER> in that scope.  This could e.g. be used inside
-C<start> blocks, to make sure all registered resources of a job run in
-another thread, are finalized:
-
-=begin code :lang<raku>
-
-await start {
-    use FINALIZER;
-    # open database handles, shared memory, whatever
-    my $foo = Foo.new(...);
-}   # all finalized after the job is finished
-
-=end code
-
-=head1 RELATION TO DESTROY METHOD
-
-This module has B<no> direct connection with the C<.DESTROY> method
-functionality in Raku.  However, if you, as a module developer, use
-this module, you do not need to supply a C<DESTROY> method as well, as
-the finalization will have been done by the C<FINALIZER> module.  And as
-the finalizer code that you have registered, will keep the object otherwise
-alive until the program exits.
-
-It therefore makes sense to reset the variable in the code doing the
-finalization.  For instance, in the above class Foo:
-
-=begin code :lang<raku>
-
-method finalize(\SELF: --> Nil) {
-    # do stuff with SELF
-    SELF = Nil
-}
-
-=end code
-
-The C<\SELF:> is a way to get the invocant without it being decontainerized.
-This allows resetting the variable containing the object (by assigning C<Nil>
-to it).
-
-=head1 AUTHOR
-
-Elizabeth Mattijsen <liz@raku.rocks>
-
-Source can be located at: https://github.com/lizmat/FINALIZER . Comments and
-Pull Requests are welcome.
-
-If you like this module, or what I’m doing more generally, committing to a
-L<small sponsorship|https://github.com/sponsors/lizmat/>  would mean a great
-deal to me!
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2018, 2019, 2021, 2024 Elizabeth Mattijsen
-
-This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
-
-=end pod
 
 # vim: expandtab shiftwidth=4
