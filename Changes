@@ -1,6 +1,8 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+
+0.0.9  2025-01-09T21:14:13+01:00
     - Add "Finalizable" role for easier usage as a module
       developer, accessible with 'use FINALIZER <role-only>
       Voldenet++

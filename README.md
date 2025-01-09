@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/lizmat/FINALIZER/workflows/test/badge.svg)](https://github.com/lizmat/FINALIZER/actions)
+[![Actions Status](https://github.com/lizmat/FINALIZER/actions/workflows/linux.yml/badge.svg)](https://github.com/lizmat/FINALIZER/actions) [![Actions Status](https://github.com/lizmat/FINALIZER/actions/workflows/macos.yml/badge.svg)](https://github.com/lizmat/FINALIZER/actions) [![Actions Status](https://github.com/lizmat/FINALIZER/actions/workflows/windows.yml/badge.svg)](https://github.com/lizmat/FINALIZER/actions)
 
 NAME
 ====
@@ -17,15 +17,9 @@ SYNOPSIS
 # $foo has been finalized by exiting the above scope
 
 # different file / module
-use FINALIZER <class-only>;   # only get the FINALIZER class
-class Foo {
-    has &!unregister;
-
-    submethod TWEAK() {
-        &!unregister = FINALIZER.register: { .finalize with self }
-    }
-    method finalize() {
-        &!unregister();  # make sure there's no registration anymore
+use FINALIZER <role-only>;   # only get the Finalizable role
+class Foo is Finalizable {
+    method FINALIZE() {
         # do whatever we need to finalize, e.g. close db connection
     }
 }
@@ -39,7 +33,18 @@ FINALIZER allows one to register finalization of objects in the scope that you w
 AS A MODULE DEVELOPER
 =====================
 
-If you are a module developer, you need to use the FINALIZE module in your code. In any logic that returns an object (typically the `new` method) that you want finalized at the moment the client decides, you register a code block to be executed when the object should be finalized. Typically that looks something like:
+If you are a module developer, you need to use the Finalizable role in your code. Objects created with the `Finalizable` role applied may implement `FINALIZE` method to perform cleanup tasks after scope is completed.
+
+```raku
+use FINALIZER <role-only>;   # only get the Finalizable role
+class Foo is Finalizable {
+   method FINALIZE {
+       # do whatever we need to finalize, e.g. close db connection
+   }
+}
+```
+
+It is also possible to use the `FINALIZER` class from `FINALIZE` module in your code. In any logic that returns an object (typically the `new` method) that you want finalized at the moment the client decides, you register a code block to be executed when the object should be finalized. Typically that looks something like:
 
 ```raku
 use FINALIZER <class-only>;  # only get the FINALIZER class
@@ -97,7 +102,7 @@ If you like this module, or what I’m doing more generally, committing to a [sm
 COPYRIGHT AND LICENSE
 =====================
 
-Copyright 2018, 2019, 2021, 2024 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021, 2024, 2025 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 

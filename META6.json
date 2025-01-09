@@ -17,10 +17,12 @@
   "resources": [
   ],
   "source-url": "https://github.com/lizmat/FINALIZER.git",
-  "tags": [ "PHASER", "DESTROY",
+  "tags": [
+    "PHASER",
+    "DESTROY",
     "UTILS"
   ],
   "test-depends": [
   ],
-  "version": "0.0.8"
+  "version": "0.0.9"
 }
