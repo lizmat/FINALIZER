@@ -1,6 +1,8 @@
 Revision history for FINALIZER
 
 {{$NEXT}}
+
+0.0.10  2026-08-09T15:01:17+02:00
     - Add a LEAVE phaser through $*R when compiling with RakuAST, which
       has no $*W to add one with, ugexe++
     - Update copyright year
