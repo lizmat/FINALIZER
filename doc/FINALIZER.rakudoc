@@ -7,7 +7,6 @@ FINALIZER - dynamic finalizing for objects that need finalizing
 =head1 SYNOPSIS
 
 =begin code :lang<raku>
-
 {
     use FINALIZER;   # enable finalizing for this scope
     my $foo = Foo.new(...);
@@ -22,7 +21,6 @@ class Foo is Finalizable {
         # do whatever we need to finalize, e.g. close db connection
     }
 }
-
 =end code
 
 =head1 DESCRIPTION
@@ -39,14 +37,12 @@ implement C<FINALIZE> method to perform cleanup tasks after scope is
 completed.
 
 =begin code :lang<raku>
-
 use FINALIZER <role-only>;   # only get the Finalizable role
 class Foo is Finalizable {
    method FINALIZE {
        # do whatever we need to finalize, e.g. close db connection
    }
 }
-
 =end code
 
 It is also possible to use the C<FINALIZER> class from C<FINALIZE>
@@ -56,7 +52,6 @@ decides, you register a code block to be executed when the object
 should be finalized.  Typically that looks something like:
 
 =begin code :lang<raku>
-
 use FINALIZER <class-only>;  # only get the FINALIZER class
 class Foo {
     has &!unregister;
@@ -69,7 +64,6 @@ class Foo {
         # do whatever we need to finalize, e.g. close db connection
     }
 }
-
 =end code
 
 =head1 AS A PROGRAM DEVELOPER
@@ -83,13 +77,11 @@ C<start> blocks, to make sure all registered resources of a job run in
 another thread, are finalized:
 
 =begin code :lang<raku>
-
 await start {
     use FINALIZER;
     # open database handles, shared memory, whatever
     my $foo = Foo.new(...);
 }   # all finalized after the job is finished
-
 =end code
 
 =head1 RELATION TO DESTROY METHOD
@@ -105,12 +97,10 @@ It therefore makes sense to reset the variable in the code doing the
 finalization.  For instance, in the above class Foo:
 
 =begin code :lang<raku>
-
 method finalize(\SELF: --> Nil) {
     # do stuff with SELF
     SELF = Nil
 }
-
 =end code
 
 The C<\SELF:> is a way to get the invocant without it being decontainerized.
@@ -121,7 +111,7 @@ to it).
 
 Elizabeth Mattijsen <liz@raku.rocks>
 
-Source can be located at: https://github.com/lizmat/FINALIZER . Comments and
+Source can be located at: https://codeberg.org/lizmat/FINALIZER . Comments and
 Pull Requests are welcome.
 
 If you like this module, or what I’m doing more generally, committing to a
@@ -130,7 +120,7 @@ deal to me!
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2018, 2019, 2021, 2024, 2025 Elizabeth Mattijsen
+Copyright 2018, 2019, 2021, 2024, 2025, 2026 Elizabeth Mattijsen
 
 This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
 
