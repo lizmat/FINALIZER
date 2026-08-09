@@ -1,3 +1,5 @@
+use experimental :rakuast;  # for the LEAVE phaser under the RakuAST frontend
+
 class FINALIZER {
     # The blocks that this finalizer needs to finalize
     has @.blocks;
@@ -42,12 +44,34 @@ class FINALIZER {
     }
 }
 
+# The RakuAST frontend attaches phasers to the AST node of the scope rather
+# than to a $*W.  A phaser node there compiles its own body, but this one is
+# handed a block that was already compiled with this module, so it reports
+# that block as its code object.  The blorst is never looked at.
+my class LeavePhaser is RakuAST::StatementPrefix::Phaser::Leave {
+    has &!code;
+    method new(&code) {
+        my $phaser := callwith(RakuAST::Block.new);
+        $phaser!set-code(&code);
+        $phaser
+    }
+    method !set-code(&code --> Nil) { &!code := &code }
+    method meta-object() { &!code }
+}
+
 # Exporting for a client environment
 multi sub EXPORT() {
 
     # The magic incantation to export a LEAVE phaser to the scope where
     # the -use- statement is placed, Zoffix++ for producing this hack!
-    $*W.add_phaser: $*LANG, 'LEAVE', { $*FINALIZER.FINALIZE }
+    my &FINALIZE := { $*FINALIZER.FINALIZE }
+    with try $*W {
+        .add_phaser: $*LANG, 'LEAVE', &FINALIZE
+    }
+    else {
+        ($*R.find-attach-target('block') // $*R.find-attach-target('compunit'))
+          .add-leave-phaser: LeavePhaser.new(&FINALIZE)
+    }
 
     # Make sure we export a dynamic variable as well, to serve as the
     # check point for the finalizations that need to happen in this scope.
